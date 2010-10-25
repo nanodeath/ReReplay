@@ -109,21 +109,27 @@ module ReReplay
 					end
 				end
 				total_urls = @input.length
+				
+				requests = []
+				# pregenerate requests
+				@input.each do |a|
+					requests << EventMachine::HttpRequest.new(a[2])
+				end
 
 				@input.each_with_index do |a, i|
 					scheduled_start = a[0]
 					request = OpenStruct.new(:url => a[2], :scheduled_start => scheduled_start, :index => i, :http_method => a[1])
-					delay = actual_start + scheduled_start - Time.now
-					if(delay < 0)
+					delay = actual_start + scheduled_start
+					if(delay < Time.now)
 						raise "Not enough time allotted for setup!  Try increasing time_for_setup in your profile."
 					end
+					delay -= Time.now
 					EM::add_timer(delay) do
 						EM.defer do
-							time_since_start = Time.now - actual_start
-							request.actual_start = time_since_start
 							begin
+								request.actual_start = Time.now - actual_start
+								http = requests[i].send(request.http_method, :timeout => p[:timeout])
 								request_monitors_start.each {|mon| mon.start(request)}
-								http = EventMachine::HttpRequest.new(a[2]).send(request.http_method, :timeout => p[:timeout])
 							rescue => e
 								EM.next_tick do
 									raise e
