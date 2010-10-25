@@ -14,17 +14,17 @@ There are a couple other main features as well.  You can provide Request Monitor
     	[0.5, :get, "http://www.microsoft.com/"],
     	[0.9, :get, "http://www.amazon.com/"]
     ]
-    r = ReReplay.new(input)
+    r = ReReplay::Runner.new(input)
     r.run
     # and done!    
 
 Of course, this doesn't actually track any output, so...let's monitor the request time using the request_time_monitor:
 
 ## Request Monitor
-    require "rereplay/monitors/request_time_monitor"
+    require "rereplay/monitors"
     input = [same as in Simple]
-    mon = RequestTimeMonitor.new
-    r = ReReplay.new(input)
+    mon = ReReplay::RequestTimeMonitor.new
+    r = ReReplay::Runner.new(input)
     r.request_monitors << mon
     r.run
     puts mon.results.inspect
