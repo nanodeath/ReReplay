@@ -9,7 +9,7 @@ describe ReReplay, "basic functions" do
 		interval = 0.0
 		input = urls.map {|i| [interval += 0.1, :get, i]}
 		
-		r = ReReplay.new(input)
+		r = ReReplay::Runner.new(input)
 		lambda { r.run }.should take_between(1.second).and(2.seconds)
 		
 		urls.each {|url| WebMock.should have_requested(:get, url)}
@@ -24,7 +24,7 @@ EOF
 		stub_request(:get, "http://www.google.com/")
 		stub_request(:get, "http://www.amazon.com/")
 		
-		r = ReReplay.new(input)
+		r = ReReplay::Runner.new(input)
 		lambda { r.run }.should take_between(1.second).and(2.seconds)
 		
 		WebMock.should have_requested(:get, "http://www.google.com/")
@@ -32,7 +32,7 @@ EOF
 	end
 	
 	it "should throw exception on empty input" do
-		r = ReReplay.new
+		r = ReReplay::Runner.new
 		lambda { r.run }.should raise_error(ArgumentError, /input was empty/)
 	end
 end

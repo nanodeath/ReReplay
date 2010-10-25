@@ -1,2 +1,2 @@
 require 'req'
-require 'rereplay/rereplay'
+require 'rereplay/runner'

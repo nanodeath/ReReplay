@@ -4,7 +4,7 @@ describe ReReplay, "advanced functions" do
 	it "should support linear rampup" do
 		input = generate_input(10, :start_at_0 => true)
 		
-		r = ReReplay.new(input)
+		r = ReReplay::Runner.new(input)
 		profile = {
 			:rampup => [1.0, 2.0]
 		}
@@ -16,7 +16,7 @@ describe ReReplay, "advanced functions" do
 	it "should support linear rampup from <1 to >1" do
 		input = generate_input(10, :start_at_0 => true)
 		
-		r = ReReplay.new(input)
+		r = ReReplay::Runner.new(input)
 		profile = {
 			:rampup => [0.5, 2]
 		}
@@ -28,7 +28,7 @@ describe ReReplay, "advanced functions" do
 	it "should play nicely with run_for and :loop" do
 		input = generate_input(10, :start_at_0 => true)
 		
-		r = ReReplay.new(input)
+		r = ReReplay::Runner.new(input)
 		profile = {
 			:rampup => [0.5, 2],
 			:run_for => 2,

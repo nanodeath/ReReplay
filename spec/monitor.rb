@@ -2,11 +2,11 @@ require 'spec/spec_helper'
 
 describe ReReplay, "periodic monitors" do
 	it "should work" do
-		mem_monitor = MemoryMonitor.new
+		mem_monitor = ReReplay::MemoryMonitor.new
 		mem_monitor.interval = 0.2
 		
 		input = generate_input(3, :interval => 0.25)
-		r = ReReplay.new(input)
+		r = ReReplay::Runner.new(input)
 		r.periodic_monitors << mem_monitor
 		
 		# the periodic monitor will start around `time_for_setup` (1 second)
@@ -20,11 +20,11 @@ end
 
 describe ReReplay, "request monitors" do
 	it "should work" do
-		req_mon = RequestTimeMonitor.new
-		delay_mon = DelayMonitor.new
+		req_mon = ReReplay::RequestTimeMonitor.new
+		delay_mon = ReReplay::DelayMonitor.new
 		
 		input = generate_input(3, :interval => 0.25)
-		r = ReReplay.new(input)
+		r = ReReplay::Runner.new(input)
 		r.request_monitors << req_mon << delay_mon
 		# the periodic monitor will start around `time_for_setup` (1 second)
 		# and run once every ~0.23s thereafter.
@@ -35,11 +35,11 @@ describe ReReplay, "request monitors" do
 		delay_mon.results.length.should == 3
 	end
 	
-	describe VerboseMonitor do
+	describe ReReplay::VerboseMonitor do
 		it "should be verbose" do
 			input = generate_input(3, :interval => 0.25)
-			r = ReReplay.new(input)
-			r.request_monitors << VerboseMonitor.new
+			r = ReReplay::Runner.new(input)
+			r.request_monitors << ReReplay::VerboseMonitor.new
 			expected = Regexp.new(<<EOF, Regexp::MULTILINE)
 started request 0:\\(http://google.com/\\) at [\\d\\.]+
  - finished request 0, status 200
