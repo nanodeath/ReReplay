@@ -32,7 +32,7 @@ module ReReplay
 			if(@input.nil? || @input.empty?)
 				raise ArgumentError, "Nothing to process (input was empty)"
 			end
-			valid_methods = [:get]
+			valid_methods = [:get, :head]
 			@input.each_with_index do |a, i|
 				if(!a[0].is_a? Numeric)
 					raise ArgumentError, "Expected element at index 0 of input #{i+1} to be Numeric; was #{a[0]}"
@@ -54,6 +54,10 @@ module ReReplay
 			validate_input
 			p = profile
 			done_count = 0
+			# request monitors with a start method
+			request_monitors_start = request_monitors.select {|mon| mon.respond_to? :start}
+			# request monitors with a finish method
+			request_monitors_finish = request_monitors.select {|mon| mon.respond_to? :finish}
 			EM::run do
 				EM.set_quantum(p[:timer_granularity])
 				start = Time.now
@@ -108,7 +112,7 @@ module ReReplay
 
 				@input.each_with_index do |a, i|
 					scheduled_start = a[0]
-					request = OpenStruct.new(:url => a[2], :scheduled_start => scheduled_start, :index => i, :method => a[1])
+					request = OpenStruct.new(:url => a[2], :scheduled_start => scheduled_start, :index => i, :http_method => a[1])
 					delay = actual_start + scheduled_start - Time.now
 					if(delay < 0)
 						raise "Not enough time allotted for setup!  Try increasing time_for_setup in your profile."
@@ -117,11 +121,9 @@ module ReReplay
 						EM.defer do
 							time_since_start = Time.now - actual_start
 							request.actual_start = time_since_start
-							request_monitors.each do |mon|
-								mon.start(request) if mon.respond_to? :start
-							end
 							begin
-								http = EventMachine::HttpRequest.new(a[2]).get :timeout => p[:timeout]
+								request_monitors_start.each {|mon| mon.start(request)}
+								http = EventMachine::HttpRequest.new(a[2]).send(request.http_method, :timeout => p[:timeout])
 							rescue => e
 								EM.next_tick do
 									raise e
@@ -135,9 +137,7 @@ module ReReplay
 									request.status = :timeout
 								end
 								begin
-									request_monitors.each do |mon|
-										mon.finish(request) if mon.respond_to? :finish
-									end
+									request_monitors_finish.each {|mon|	mon.finish(request)}
 								rescue => e
 									EM.next_tick do
 										raise e
