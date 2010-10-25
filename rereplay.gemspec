@@ -15,8 +15,8 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = ">= 1.3.6"
 
-	s.add_runtime_dependency "eventmachine", ">= 0.12.10", "< 0.13"
-	s.add_runtime_dependency "em-http-request", ">= 0.2.14", "< 0.3"
+  s.add_runtime_dependency "eventmachine", ">= 0.12.10", "< 0.13"
+  s.add_runtime_dependency "em-http-request", ">= 0.2.14", "< 0.3"
 	
   s.add_development_dependency "rspec", ">= 2.0", "< 3"
   s.add_development_dependency "webmock", ">= 1.4.0", "< 1.5"
