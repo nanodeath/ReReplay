@@ -18,7 +18,7 @@ There are a couple other main features as well.  You can provide Request Monitor
     r.run
     # and done!    
 
-Of course, this doesn't actually track any input, so...let's monitor the request time using the request_time_monitor:
+Of course, this doesn't actually track any output, so...let's monitor the request time using the request_time_monitor:
 
 ## Request Monitor
     require "rereplay/monitors/request_time_monitor"
