@@ -1,0 +1,56 @@
+require 'spec/spec_helper'
+
+describe ReReplay, "periodic monitors" do
+	it "should work" do
+		mem_monitor = MemoryMonitor.new
+		mem_monitor.interval = 0.2
+		
+		input = generate_input(3, :interval => 0.25)
+		r = ReReplay.new(input)
+		r.periodic_monitors << mem_monitor
+		
+		# the periodic monitor will start around `time_for_setup` (1 second)
+		# and run once every ~0.23s thereafter.
+		# Because the final request will finish around 1.75, this run four times
+		r.run
+		validate_input(3)
+		mem_monitor.results.length.should == 4
+	end
+end
+
+describe ReReplay, "request monitors" do
+	it "should work" do
+		req_mon = RequestTimeMonitor.new
+		delay_mon = DelayMonitor.new
+		
+		input = generate_input(3, :interval => 0.25)
+		r = ReReplay.new(input)
+		r.request_monitors << req_mon << delay_mon
+		# the periodic monitor will start around `time_for_setup` (1 second)
+		# and run once every ~0.23s thereafter.
+		# Because the final request will finish around 1.75, this run four times
+		r.run
+		validate_input(3)
+		req_mon.results.length.should == 3
+		delay_mon.results.length.should == 3
+	end
+	
+	describe VerboseMonitor do
+		it "should be verbose" do
+			input = generate_input(3, :interval => 0.25)
+			r = ReReplay.new(input)
+			r.request_monitors << VerboseMonitor.new
+			expected = Regexp.new(<<EOF, Regexp::MULTILINE)
+started request 0:\\(http://google.com/\\) at [\\d\\.]+
+ - finished request 0, status 200
+started request 1:\\(http://microsoft.com/\\) at [\\d\\.]+
+ - finished request 1, status 200
+started request 2:\\(http://amazon.com/\\) at [\\d\\.]+
+ - finished request 2, status 200
+EOF
+			capture_stdout { r.run }.should match(expected)
+			validate_input(3)
+		end
+	end
+end
+

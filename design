@@ -1,0 +1,22 @@
+First, we have to acquire our initial input.  Anything that implements #readlines (and returns an array of strings) can be used.  Note, this should be provided by Rereplay -- can either be a stream via ARGF or a filename.
+
+Next we need a processor to turn our input into an array of arrays: each array element must match this pattern: [seconds offset (float), method (lowercase symbol), url (string), [optional: headers (hash)], (optional: post data, string)]
+
+Next, we can filter this input with 1..n filters.  Each filter must have a #filter method that takes an array and return a new array, which will be used instead; nil, if the string is to be removed; or true if the original input should be used.
+
+After all of the filters have run, we will have our input.  At this point, a profile is consumed that determines some runtime behavior.  Keys include:
+ - time_for_setup: integer (seconds) (default 5s)
+ - timer_granularity: integer (milliseconds) (default 50ms)
+ - run_for: integer (minutes) (default 5m)
+ - when_input_consumed: enum (one of: loop, stop:default)
+ - monitors_enabled: array (list of monitor classes) default:[]
+ 
+RequestMonitors are ruby classes that implement this interface:
+ - [#start(request:{url, scheduled_start, actual_start, index})=>nil] optional
+ - [#finish(request:{url, scheduled_start, actual_start, finish, index})=>nil] optional
+ - [#results=>whatever] optional
+ 
+Periodic Monitors are also special ruby classes that provide some additional statistics that can be used.  They must implement this interface:
+ - #tick(time:float)=>nil, returns nothing (executed every fixed interval).  time is seconds since start.
+ - [#results()=>[[]], returns an array of arrays, where the first element is a time and the second is a string.] optional
+ - [#interval()=>time:integer], optional, returns the interval at which this monitor should be run, in seconds, default 5
