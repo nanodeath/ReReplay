@@ -1,4 +1,4 @@
-require 'spec/spec_helper'
+require 'spec_helper'
 
 describe ReReplay, "profile options" do
 	it "respects 'time_for_setup' parameter" do
@@ -10,20 +10,6 @@ describe ReReplay, "profile options" do
 		}
 		r.profile = profile
 		lambda { r.run }.should take_between(0.45.seconds).and(0.6.seconds)
-		validate_input(2)
-	end
-	it "respects 'timer_granularity' parameter" do
-		input = generate_input(2)
-		
-		r = ReReplay::Runner.new(input)
-		profile = {
-			:timer_granularity => 1000
-		}
-		r.profile = profile
-		
-		# normally this would finish at around 1.2 seconds, but with such a high
-		# timer resolution, it rounds up from 0.1 to 1
-		lambda { r.run }.should take_between(2.seconds).and(3.seconds)
 		validate_input(2)
 	end
 	it "respects 'run_for' parameter" do

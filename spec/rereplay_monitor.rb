@@ -1,4 +1,4 @@
-require 'spec/spec_helper'
+require 'spec_helper'
 
 describe ReReplay, "periodic monitors" do
 	it "should work" do

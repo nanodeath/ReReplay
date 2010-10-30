@@ -1,4 +1,4 @@
-require 'spec/spec_helper'
+require 'spec_helper'
 
 describe ReReplay, "basic functions" do
 	it "should process input from array" do

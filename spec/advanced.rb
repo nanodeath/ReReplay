@@ -1,4 +1,4 @@
-require 'spec/spec_helper'
+require 'spec_helper'
 
 describe ReReplay, "advanced functions" do
 	it "should support linear rampup" do

@@ -1,5 +1,1 @@
-require 'ostruct'
-require 'eventmachine'
-require 'em-http'
-
-require 'rereplay/runner'
+require 'rereplay/ruby_runner'
