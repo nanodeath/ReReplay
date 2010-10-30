@@ -35,7 +35,7 @@ describe ReReplay, "advanced functions" do
 			:when_input_consumed => :loop
 		}
 		r.profile = profile
-		lambda { r.run }.should take_between(2.seconds).and(2.1.seconds)
+		lambda { r.run }.should take_between(2.seconds).and(2.2.seconds)
 		validate_input(10, 2)
 	end
 end

@@ -131,23 +131,21 @@ module ReReplay
 			max_delay = 0
 			parent_thread = Thread.current
 			Thread.abort_on_exception = true
+			ready_for_processing = false
 			gatekeeper = Thread.new do
-				Thread.stop
-				begin
-					until requests_to_make.empty?
-						task = requests_to_make.shift
-						now = Time.new
-						since_start = now - start_time
-						time_until_next_task = task[0] - since_start
-					
-						if(time_until_next_task > 0)
-							sleep time_until_next_task
-						end
-						q << task
+				q.synchronize do
+					waiters_cond.wait_until { ready_for_processing }
+				end
+				until requests_to_make.empty?
+					task = requests_to_make.shift
+					since_start = Time.new - start_time
+					time_until_next_task = task[0] - since_start
+				
+					if(time_until_next_task > 0)
+						sleep time_until_next_task
 					end
-				rescue => e
-					$stderr.puts e
-					raise e
+					
+					q << task
 				end
 			end
 			thread_count.times do
@@ -161,11 +159,14 @@ module ReReplay
 						url = URI.parse(task[2])
 						req = Net::HTTP::Get.new(url.path)
 						request = OpenStruct.new(:url => task[2], :scheduled_start => task[0], :index => task[3], :http_method => task[1])
+						#puts "opening connection to #{url.host} #{Time.now.to_f}"
 						Net::HTTP.start(url.host, url.port) do |http|
+							#puts " - connection open to #{url.host} #{Time.now.to_f}"
 							http.read_timeout = p[:timeout]
 							status = nil
 							begin
 								request.actual_start = Time.now - start_time
+								#request.actual_start = now - start_time
 								resp = http.request(req)
 								request_monitors_start.each {|mon| mon.start(request)}
 							rescue Timeout::Error
@@ -189,13 +190,14 @@ module ReReplay
 						end
 					end
 				end
-				t.priority = 0
 				tg.add t
 			end
 			test_duration_exceeded = false
-			gatekeeper.priority = 1
-			start_time = Time.now
-			gatekeeper.run
+			q.synchronize do
+				ready_for_processing = true
+				start_time = Time.now
+				waiters_cond.broadcast
+			end
 			timeout_thread = Thread.new do
 				sleep_duration = start_time + p[:run_for] - Time.now
 				sleep sleep_duration
@@ -204,7 +206,6 @@ module ReReplay
 					waiters_cond.broadcast
 				end
 			end
-			timeout_thread.priority = 2
 			periodic_monitor_threads = []
 			periodic_monitors.each do |mon|
 				interval = mon.respond_to?(:interval) ? mon.interval : 5
@@ -219,7 +220,7 @@ module ReReplay
 				end
 			end
 			q.synchronize do
-				waiters_cond.wait_while { done < total_requests && !test_duration_exceeded }
+				waiters_cond.wait_while {	done < total_requests && !test_duration_exceeded }
 			end
 		ensure
 			gatekeeper.kill if gatekeeper

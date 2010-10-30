@@ -43,7 +43,8 @@ started request 1:\\(http://microsoft.com/\\) at [\\d\\.]+
 started request 2:\\(http://amazon.com/\\) at [\\d\\.]+
  - finished request 2, status 200
 EOF
-			capture_stdout { r.run }.should match(expected)
+			output = capture_stdout { r.run }
+			output.should match(expected)
 			validate_input(3)
 		end
 	end
