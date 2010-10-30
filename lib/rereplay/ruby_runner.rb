@@ -116,19 +116,15 @@ module ReReplay
 			q.extend MonitorMixin
 			waiters_cond = q.new_cond
 			
-			# setup time is the duration of time we've allotted for 
-			setup_time = p[:time_for_setup]
 			prepare
-			start_time = Time.new
+			start_time = nil
 			index = 0
 			requests_to_make = @input.map do |r| 
 				a = r.dup
-				a[0] += setup_time
 				a[3] = index
 				index += 1
 				a
 			end
-			actual_start = start_time + setup_time
 			thread_count = 20
 			done = 0
 			total_requests = @input.length
@@ -169,7 +165,7 @@ module ReReplay
 							http.read_timeout = p[:timeout]
 							status = nil
 							begin
-								request.actual_start = Time.now - actual_start
+								request.actual_start = Time.now - start_time
 								resp = http.request(req)
 								request_monitors_start.each {|mon| mon.start(request)}
 							rescue Timeout::Error
@@ -178,7 +174,7 @@ module ReReplay
 							if status.nil?
 								status = resp.code
 							end
-							time_finished = Time.now - actual_start
+							time_finished = Time.now - start_time
 							request.finish = time_finished
 							request.status = status
 							begin
@@ -193,28 +189,31 @@ module ReReplay
 						end
 					end
 				end
+				t.priority = 0
 				tg.add t
 			end
 			test_duration_exceeded = false
+			gatekeeper.priority = 1
+			start_time = Time.now
+			gatekeeper.run
 			timeout_thread = Thread.new do
-				sleep_duration = actual_start + p[:run_for] - Time.now
+				sleep_duration = start_time + p[:run_for] - Time.now
 				sleep sleep_duration
 				q.synchronize do
 					test_duration_exceeded = true
 					waiters_cond.broadcast
 				end
 			end
-			gatekeeper.run
+			timeout_thread.priority = 2
 			periodic_monitor_threads = []
 			periodic_monitors.each do |mon|
 				interval = mon.respond_to?(:interval) ? mon.interval : 5
 				periodic_monitor_threads << Thread.new do
 					i = 0
-					sleep actual_start - Time.now
 					while true
 						mon.tick(Time.now - start_time)
 						i += 1
-						time_to_next = actual_start + (interval * i) - Time.now
+						time_to_next = start_time + (interval * i) - Time.now
 						sleep time_to_next if time_to_next > 0
 					end
 				end
@@ -230,8 +229,6 @@ module ReReplay
 
 		def profile=(new_profile)
 			@profile = {
-				:time_for_setup => 1,
-				:timer_granularity => 50,
 				:run_for => 5,
 				:when_input_consumed => :stop,
 				:timeout => 1,

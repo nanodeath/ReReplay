@@ -9,7 +9,7 @@ describe ReReplay, "advanced functions" do
 			:rampup => [1.0, 2.0]
 		}
 		r.profile = profile
-		lambda { r.run }.should take_between(1.65.seconds).and(1.8.seconds)
+		lambda { r.run }.should take_between(0.65.seconds).and(0.8.seconds)
 		validate_input(10)
 	end
 	
@@ -21,7 +21,7 @@ describe ReReplay, "advanced functions" do
 			:rampup => [0.5, 2]
 		}
 		r.profile = profile
-		lambda { r.run }.should take_between(2.05.seconds).and(2.2.seconds)
+		lambda { r.run }.should take_between(1.05.seconds).and(1.2.seconds)
 		validate_input(10)
 	end
 	
@@ -35,7 +35,7 @@ describe ReReplay, "advanced functions" do
 			:when_input_consumed => :loop
 		}
 		r.profile = profile
-		lambda { r.run }.should take_between(3.seconds).and(3.1.seconds)
+		lambda { r.run }.should take_between(2.seconds).and(2.1.seconds)
 		validate_input(10, 2)
 	end
 end

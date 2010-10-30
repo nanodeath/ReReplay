@@ -9,9 +9,6 @@ describe ReReplay, "periodic monitors" do
 		r = ReReplay::Runner.new(input)
 		r.periodic_monitors << mem_monitor
 		
-		# the periodic monitor will start around `time_for_setup` (1 second)
-		# and run once every ~0.23s thereafter.
-		# Because the final request will finish around 1.75, this run four times
 		r.run
 		validate_input(3)
 		mem_monitor.results.length.should == 4
@@ -26,9 +23,7 @@ describe ReReplay, "request monitors" do
 		input = generate_input(3, :interval => 0.25)
 		r = ReReplay::Runner.new(input)
 		r.request_monitors << req_mon << delay_mon
-		# the periodic monitor will start around `time_for_setup` (1 second)
-		# and run once every ~0.23s thereafter.
-		# Because the final request will finish around 1.75, this run four times
+
 		r.run
 		validate_input(3)
 		req_mon.results.length.should == 3

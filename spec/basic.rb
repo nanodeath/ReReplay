@@ -10,7 +10,7 @@ describe ReReplay, "basic functions" do
 		input = urls.map {|i| [interval += 0.1, :get, i]}
 		
 		r = ReReplay::Runner.new(input)
-		lambda { r.run }.should take_between(1.second).and(2.seconds)
+		lambda { r.run }.should take_between(0.seconds).and(1.second)
 		
 		urls.each {|url| WebMock.should have_requested(:get, url)}
 	end
@@ -25,7 +25,7 @@ EOF
 		stub_request(:get, "http://www.amazon.com/")
 		
 		r = ReReplay::Runner.new(input)
-		lambda { r.run }.should take_between(1.second).and(2.seconds)
+		lambda { r.run }.should take_between(0.seconds).and(1.second)
 		
 		WebMock.should have_requested(:get, "http://www.google.com/")
 		WebMock.should have_requested(:get, "http://www.amazon.com/")
