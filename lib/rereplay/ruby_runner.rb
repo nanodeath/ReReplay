@@ -18,7 +18,7 @@ module ReReplay
 			@periodic_monitors = []
 			@request_monitors = []
 		end
-
+		
 		def input=(input)
 			if(input.is_a? Array)
 				@input = input
@@ -148,6 +148,7 @@ module ReReplay
 					q << task
 				end
 			end
+			
 			thread_count.times do
 				t = Thread.new do
 					while true
@@ -159,14 +160,13 @@ module ReReplay
 						url = URI.parse(task[2])
 						req = Net::HTTP::Get.new(url.path)
 						request = OpenStruct.new(:url => task[2], :scheduled_start => task[0], :index => task[3], :http_method => task[1])
-						#puts "opening connection to #{url.host} #{Time.now.to_f}"
+						# this connection can actually take ~300ms...is there a better way?
 						Net::HTTP.start(url.host, url.port) do |http|
-							#puts " - connection open to #{url.host} #{Time.now.to_f}"
 							http.read_timeout = p[:timeout]
 							status = nil
 							begin
-								request.actual_start = Time.now - start_time
-								#request.actual_start = now - start_time
+								#request.actual_start = Time.now - start_time
+								request.actual_start = now - start_time
 								resp = http.request(req)
 								request_monitors_start.each {|mon| mon.start(request)}
 							rescue Timeout::Error

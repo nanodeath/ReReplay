@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/tomas-stefano/infinity_test.git
-  revision: 393e09b79c8fa6a33548bcf6f00ee55efdbd6822
+  revision: c732c6bcc54e8745fba4dbd4565e068a2a329e1a
   specs:
     infinity_test (0.2.0)
       notifiers (>= 1.1.0)
