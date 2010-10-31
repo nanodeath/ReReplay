@@ -12,7 +12,7 @@ There are a couple other main features as well.  You can provide Request Monitor
 	input = [
 		[0, :get, "http://www.google.com/"],
 		[0.5, :get, "http://www.microsoft.com/"],
-    [0.9, :get, "http://www.amazon.com/"]
+		[0.9, :get, "http://www.amazon.com/"]
 	]
 	r = ReReplay::Runner.new(input)
 	r.run
@@ -64,14 +64,14 @@ Request monitors monitor indivual requests -- they're simple Ruby objects that i
 	
 	# The request object has the following getters:
 	# 	#url => complete url as String used for the request
-	#		#scheduled_start => time since start (as Float) that this request should have been made
-	#		#actual_start => time since start that request was actually executed
-	#		#index => position in input that request had; first request has index 0, second request has 1, etc.
-	#		#http_method => http method that should be used to execute the request (lowercase symbol, i.e. :get)
-	#		#finish => time since start that request finished executing (only available if request has finished)
-	#		#status => HTTP response code as an integer, or if a timeout occurred, as :timeout
+	# 	#scheduled_start => time since start (as Float) that this request should have been made
+	# 	#actual_start => time since start that request was actually executed
+	# 	#index => position in input that request had; first request has index 0, second request has 1, etc.
+	# 	#http_method => http method that should be used to execute the request (lowercase symbol, i.e. :get)
+	# 	#finish => time since start that request finished executing (only available if request has finished)
+	# 	#status => HTTP response code as an integer, or if a timeout occurred, as :timeout
 	
-[RequestTimeMonitor](lib/rereplay/monitors/request_time_monitor.rb) is an example of a Request Monitor.
+[RequestTimeMonitor](blob/master/lib/rereplay/monitors/request_time_monitor.rb) is an example of a Request Monitor.
 
 ## Periodic Monitors
 
@@ -96,6 +96,8 @@ Periodic monitors are monitors that, well, run *periodically* -- out of sync wit
 			# you may wish to implement this as @interval = 2 w/ attr_reader :interval in your constructor
 		end
 	end
+	
+[MemoryMonitor](blob/master/lib/rereplay/monitors/memory_monitor.rb) is an example of a Periodic Monitor.
 	
 ## Using monitors
 
