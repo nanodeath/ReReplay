@@ -1,0 +1,16 @@
+<table>
+	<tr><th>id</th><th>url</th><th>start</th><th>stop</th><th>delay</th></tr>
+	<% if @results %>
+		<% @results.each do |row| %>
+			<tr>
+				<td><%= row[:id] %></td>
+				<td><%= row[:url] %></td>
+				<td><%= row[:start_time] %></td>
+				<td><%= row[:stop_time] || "TBD" %></td>
+				<td><%= row[:delay] %></td>
+			</tr>
+		<% end %>
+	<% else %>
+		No results...
+	<% end %>
+</table>

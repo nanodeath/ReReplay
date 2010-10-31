@@ -1,0 +1,27 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+		<script>
+			$(function(){
+				$("#submit_run").click(function(e){
+					e.preventDefault();
+					$.post("/run");
+					
+					var updater = setInterval(function(){
+						$.get("/results", function(data){
+							if(data == "0") clearInterval(updater);
+							else $("#results").html(data);
+						});
+					}, 500);
+				});
+			});
+		</script>
+	</head>
+	<body>
+		Home:
+		<div id="results">
+		
+		</div>
+		<input type="submit" id="submit_run">
+	</body>
+</html>
