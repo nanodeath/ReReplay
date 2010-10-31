@@ -71,7 +71,7 @@ Request monitors monitor indivual requests -- they're simple Ruby objects that i
 	# 	#finish => time since start that request finished executing (only available if request has finished)
 	# 	#status => HTTP response code as an integer, or if a timeout occurred, as :timeout
 	
-[RequestTimeMonitor](blob/master/lib/rereplay/monitors/request_time_monitor.rb) is an example of a Request Monitor.
+[RequestTimeMonitor](ReReplay/blob/master/lib/rereplay/monitors/request_time_monitor.rb) is an example of a Request Monitor.
 
 ## Periodic Monitors
 
@@ -97,7 +97,7 @@ Periodic monitors are monitors that, well, run *periodically* -- out of sync wit
 		end
 	end
 	
-[MemoryMonitor](blob/master/lib/rereplay/monitors/memory_monitor.rb) is an example of a Periodic Monitor.
+[MemoryMonitor](ReReplay/blob/master/lib/rereplay/monitors/memory_monitor.rb) is an example of a Periodic Monitor.
 	
 ## Using monitors
 
