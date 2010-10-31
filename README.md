@@ -114,7 +114,7 @@ ReReplay has a few sample monitors built in -- to load these, require "rereplay/
 	
 # Specs
 
-Specs have more examples and probably more up-to-date, too.  They're fairly simple -- start with basic.rb.
+Specs have more examples and probably more up-to-date, too.  They're fairly simple -- start with basic.rb.  To run them yourself, use Bundler to `bundle install` first, modify .infinity_test to exclude (or include) the Ruby implementations you want to test, then `bundle exec infinity_test` away.
 
 # Cross-Ruby Interoperability
 
