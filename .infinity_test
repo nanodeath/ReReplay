@@ -1,8 +1,7 @@
+#!/usr/bin/env ruby
 infinity_test do
 
-    notifications :lib_notify do
-      show_images# :mode => :mario_bros
-    end
+    notifications :lib_notify
 
     use :rubies => %w(1.8.7 1.9.2 ruby-head jruby), :test_framework => :rspec
 
@@ -20,6 +19,12 @@ infinity_test do
 
     after_run do
       # ...
+    end
+    
+    heuristics do
+      add('^lib/rereplay/ruby_runner.rb') do |file|
+        run(:all => :files)
+      end
     end
 
 end
