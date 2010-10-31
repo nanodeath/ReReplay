@@ -156,4 +156,4 @@ Fun little app that executes some requests and shows them in a website in realti
 
 # License
 
-Licensed under the permissive MIT license, provided in the LICENSE file.
+Licensed under the permissive MIT license, provided in the LICENSE file.  Not required, but I'd appreciate it if you sent me a GitHub message letting me know what your experience with the tool is, and if you're at the liberty to, tell me how you're using it.  I'm curious!
