@@ -37,11 +37,11 @@ describe ReReplay, "request monitors" do
 			r.request_monitors << ReReplay::VerboseMonitor.new
 			expected = Regexp.new(<<EOF, Regexp::MULTILINE)
 started request 0:\\(http://google.com/\\) at [\\d\\.]+
- - finished request 0, status 200
+ - finished request 0, status 200, 0 bytes
 started request 1:\\(http://microsoft.com/\\) at [\\d\\.]+
- - finished request 1, status 200
+ - finished request 1, status 200, 0 bytes
 started request 2:\\(http://amazon.com/\\) at [\\d\\.]+
- - finished request 2, status 200
+ - finished request 2, status 200, 0 bytes
 EOF
 			output = capture_stdout { r.run }
 			output.should match(expected)

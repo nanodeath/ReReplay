@@ -31,6 +31,8 @@ module ReReplay
 					i[1] = i[1].to_sym
 					i
 				end
+      elsif(input.respond_to? :get_data)
+        @input = input.get_data
 			else
 				raise "Invalid input, expected Array, #readlines, or #split"
 			end
@@ -179,7 +181,7 @@ module ReReplay
 							request.finish = time_finished
 							request.status = status
 							begin
-								request_monitors_finish.each {|mon|	mon.finish(request)}
+								request_monitors_finish.each {|mon|	mon.finish(request, resp)}
 							rescue => e
 								parent_thread.raise e
 							end
