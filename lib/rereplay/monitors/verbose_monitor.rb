@@ -4,12 +4,8 @@ module ReReplay
 		def start(request)
 			puts "started request #{request.index}:(#{request.url}) at #{request.actual_start}"
 		end
-	
-		def finish(request)
-      finish(request, nil)
-    end
 
-    def finish(request, response)
+    def finish(request, response=nil)
       puts " - finished request #{request.index}, status #{request.status}, #{response.body.bytesize} bytes"
     end
 	end

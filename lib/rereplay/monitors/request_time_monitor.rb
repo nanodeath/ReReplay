@@ -6,11 +6,7 @@ module ReReplay
 			@results = []
 		end
 
-		def finish(request)
-			finish(request, nil)
-		end
-
-		def finish(request, response)
+		def finish(request, response=nil)
 			@results[request.index] = {:url => request.url, :duration => request.finish - request.actual_start, :scheduled_start => request.scheduled_start, :actual_start => request.actual_start}
 		end
 	end

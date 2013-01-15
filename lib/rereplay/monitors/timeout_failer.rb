@@ -6,11 +6,7 @@ module ReReplay
 			@timeouts = 0
 		end
 
-		def finish(request)
-			finish(request, nil)
-		end
-
-		def finish(request, response)
+		def finish(request, response=nil)
 			if(request.status == :timeout)
 				@timeouts += 1
 			end
