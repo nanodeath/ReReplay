@@ -14,8 +14,9 @@ After all of the filters have run, we will have our input.  At this point, a pro
 RequestMonitors are ruby classes that implement this interface:
  - [#start(request:{url, scheduled_start, actual_start, index})=>nil] optional
  - [#finish(request:{url, scheduled_start, actual_start, finish, index})=>nil] optional
+ - [#finish(request:{url, scheduled_start, actual_start, finish, index}, response)=>nil] optional
  - [#results=>whatever] optional
- 
+
 Periodic Monitors are also special ruby classes that provide some additional statistics that can be used.  They must implement this interface:
  - #tick(time:float)=>nil, returns nothing (executed every fixed interval).  time is seconds since start.
  - [#results()=>[[]], returns an array of arrays, where the first element is a time and the second is a string.] optional
