@@ -6,7 +6,7 @@ module ReReplay
 		end
 
     def finish(request, response=nil)
-      puts " - finished request #{request.index}, status #{request.status}, #{response.body.bytesize} bytes"
+      puts " - finished request #{request.index}, status #{request.status}, #{response.nil? ? 0 : response.body.bytesize} bytes"
     end
 	end
 end

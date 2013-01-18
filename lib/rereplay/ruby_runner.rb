@@ -55,8 +55,10 @@ module ReReplay
 				end
 				if(!a[3].nil? && !a[3].is_a?(Hash))
 					raise ArgumentError, "Expected element at index 3 of input #{i+1} to be nil or a Hash; was #{a[3]}"
-				end
-				# TODO post data
+        end
+        if (!a[4].nil? && !a[4].is_a?(Hash))
+          raise ArgumentError, "Expected element at index 4 of input #{i+1} to be nil or a Hash; was #{a[4]}"
+        end
 			end
 		end
 		
@@ -123,7 +125,7 @@ module ReReplay
 			index = 0
 			requests_to_make = @input.map do |r| 
 				a = r.dup
-				a[3] = index
+				a.push(index)
 				index += 1
 				a
 			end
@@ -160,9 +162,10 @@ module ReReplay
 						delay = since_start - task[0]
 						if(delay > max_delay) then max_delay = delay; end
 						url = URI.parse(task[2])
-						req = Net::HTTP::Get.new(url.path)
-						request = OpenStruct.new(:url => task[2], :scheduled_start => task[0], :index => task[3], :http_method => task[1])
-						# this connection can actually take ~300ms...is there a better way?
+						request = OpenStruct.new(:url => task[2], :scheduled_start => task[0], :index => task.last, :http_method => task[1], :headers => task[3], :post_data => task[4])
+            req = create_http_request(request)
+
+            # this connection can actually take ~300ms...is there a better way?
 						Net::HTTP.start(url.host, url.port) do |http|
 							http.read_timeout = p[:timeout]
 							status = nil
@@ -230,7 +233,20 @@ module ReReplay
 			periodic_monitor_threads.each {|t| t.kill} if periodic_monitor_threads
 		end
 
-		def profile=(new_profile)
+    def create_http_request(request)
+      url = URI.parse(request.url)
+      if request.http_method == :get
+        return Net::HTTP::Get.new(url.path)
+      elsif request.http_method == :post
+        req = Net::HTTP::Post.new(url.path)
+        req.set_form_data(request.post_data)
+        return req
+      else
+        raise ArgumentError, "Method #{request.http_method} not supported"
+      end
+    end
+
+    def profile=(new_profile)
 			@profile = {
 				:run_for => 5,
 				:when_input_consumed => :stop,

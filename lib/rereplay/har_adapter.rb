@@ -2,6 +2,7 @@
 
 require 'time'
 require 'json'
+require 'cgi'
 
 module ReReplay
   class HARAdapter
@@ -20,23 +21,22 @@ module ReReplay
       clean_contents!(contents)
 
       contents = JSON.parse(contents)
-      parse contents
+      @entries = parse contents
       @entries.sort! {|entry1,entry2| Time.parse(entry1[:request_time]) <=> Time.parse(entry2[:request_time])}
 
       to_data
     end
 
     def to_data
-      data = []
       t0 = nil
-
-      @entries.each do |entry|
+      @entries.map do |entry|
         request_time = entry[:request_time]
         t0 ||= Time.parse(request_time)
         offset = Time.parse(request_time) - t0
-        data.push([offset, entry[:method], entry[:url]])
+        input = [offset, entry[:method], entry[:url]]
+        input.push(entry[:post_params]) if entry[:post_params]
+        input
       end
-      data
     end
 
     def add_offsets
@@ -44,15 +44,27 @@ module ReReplay
       offset = Time.parse(startedDateTime) - t0
     end
 
+    def extract_post_params(post_params)
+      post_params.inject({}) do|acc, params_hash|
+        acc.update(params_hash['name'] => params_hash['value'])
+      end
+    end
+
     def parse(contents)
-      @entries = []
-      contents['log']['entries'].each do|entry|
+      contents['log']['entries'].map do|entry|
         request = entry['request']
         url = request['url']
         method = request['method']
         request_time = entry['startedDateTime']
-
-        @entries.push({:request_time => request_time, :method => method, :url => url})
+        entry = {:request_time => request_time, :method => method, :url => url}
+        if method == 'POST'
+          if request['postData']['mimeType'] == 'application/x-www-form-urlencoded'
+            entry[:post_params] = extract_post_params(request['postData']['params'])
+          else
+            #TODO: Add support for other mime types (eg. multi-part forms, etc.)
+          end
+        end
+        entry
       end
     end
 
