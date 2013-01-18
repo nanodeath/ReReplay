@@ -5,8 +5,8 @@ module ReReplay
 			@max_timeouts = max_timeouts
 			@timeouts = 0
 		end
-	
-		def finish(request)
+
+		def finish(request, response=nil)
 			if(request.status == :timeout)
 				@timeouts += 1
 			end
