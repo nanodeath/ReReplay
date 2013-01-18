@@ -29,10 +29,14 @@ module ReReplay
 					i = i.strip.split(",").map {|j| j.strip}
 					i[0] = i[0].to_f
 					i[1] = i[1].to_sym
+          i[3] = eval(i[3]) if i[3]
+          i[4] = eval(i[4]) if i[4]
 					i
 				end
+      elsif(input.respond_to? :get_data)
+        @input = input.get_data
 			else
-				raise "Invalid input, expected Array, #readlines, or #split"
+				raise "Invalid input, expected Array, #readlines, #get_data or #split"
 			end
 		end
 	
@@ -40,7 +44,7 @@ module ReReplay
 			if(@input.nil? || @input.empty?)
 				raise ArgumentError, "Nothing to process (input was empty)"
 			end
-			valid_methods = [:get, :head]
+			valid_methods = [:get, :head, :post]
 			@input.each_with_index do |a, i|
 				if(!a[0].is_a? Numeric)
 					raise ArgumentError, "Expected element at index 0 of input #{i+1} to be Numeric; was #{a[0]}"
@@ -50,11 +54,13 @@ module ReReplay
 				end
 				if(!a[2].is_a? String)
 					raise ArgumentError, "Expected element at index 2 of input #{i+1} to be a String; was #{a[2]}"
-				end
+        end
 				if(!a[3].nil? && !a[3].is_a?(Hash))
 					raise ArgumentError, "Expected element at index 3 of input #{i+1} to be nil or a Hash; was #{a[3]}"
-				end
-				# TODO post data
+        end
+        if (!a[4].nil? && !a[4].is_a?(Hash))
+          raise ArgumentError, "Expected element at index 4 of input #{i+1} to be nil or a Hash; was #{a[4]}"
+        end
 			end
 		end
 		
@@ -121,7 +127,7 @@ module ReReplay
 			index = 0
 			requests_to_make = @input.map do |r| 
 				a = r.dup
-				a[3] = index
+				a.push(index)
 				index += 1
 				a
 			end
@@ -158,9 +164,10 @@ module ReReplay
 						delay = since_start - task[0]
 						if(delay > max_delay) then max_delay = delay; end
 						url = URI.parse(task[2])
-						req = Net::HTTP::Get.new(url.path)
-						request = OpenStruct.new(:url => task[2], :scheduled_start => task[0], :index => task[3], :http_method => task[1])
-						# this connection can actually take ~300ms...is there a better way?
+						request = OpenStruct.new(:url => task[2], :scheduled_start => task[0], :index => task.last, :http_method => task[1], :headers => task[3], :post_data => task[4])
+            req = create_http_request(request)
+
+            # this connection can actually take ~300ms...is there a better way?
 						Net::HTTP.start(url.host, url.port) do |http|
 							http.read_timeout = p[:timeout]
 							status = nil
@@ -179,7 +186,7 @@ module ReReplay
 							request.finish = time_finished
 							request.status = status
 							begin
-								request_monitors_finish.each {|mon|	mon.finish(request)}
+								request_monitors_finish.each {|mon|	mon.finish(request, resp)}
 							rescue => e
 								parent_thread.raise e
 							end
@@ -228,7 +235,20 @@ module ReReplay
 			periodic_monitor_threads.each {|t| t.kill} if periodic_monitor_threads
 		end
 
-		def profile=(new_profile)
+    def create_http_request(request)
+      uri = URI.parse(request.url)
+      if request.http_method == :get
+        return Net::HTTP::Get.new(uri.request_uri)
+      elsif request.http_method == :post
+        req = Net::HTTP::Post.new(uri.request_uri)
+        req.set_form_data(request.post_data)
+        return req
+      else
+        raise ArgumentError, "Method #{request.http_method} not supported"
+      end
+    end
+
+    def profile=(new_profile)
 			@profile = {
 				:run_for => 5,
 				:when_input_consumed => :stop,
