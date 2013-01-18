@@ -1,4 +1,5 @@
 require 'spec_helper'
+require "rereplay/har_adapter"
 
 describe ReReplay, "Using a HAR file for input" do
 

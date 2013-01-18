@@ -14,8 +14,6 @@ require "webmock/rspec"
 require 'active_support/time'
 require 'spec_custom_matchers'
 
-require "rereplay/har_adapter"
-
 RSpec.configure do |config|
 	config.include WebMock::API
 	config.include CustomMatchers

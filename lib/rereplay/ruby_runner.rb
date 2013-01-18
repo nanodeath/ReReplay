@@ -29,12 +29,14 @@ module ReReplay
 					i = i.strip.split(",").map {|j| j.strip}
 					i[0] = i[0].to_f
 					i[1] = i[1].to_sym
+          i[3] = eval(i[3]) if i[3]
+          i[4] = eval(i[4]) if i[4]
 					i
 				end
       elsif(input.respond_to? :get_data)
         @input = input.get_data
 			else
-				raise "Invalid input, expected Array, #readlines, or #split"
+				raise "Invalid input, expected Array, #readlines, #get_data or #split"
 			end
 		end
 	
@@ -42,7 +44,7 @@ module ReReplay
 			if(@input.nil? || @input.empty?)
 				raise ArgumentError, "Nothing to process (input was empty)"
 			end
-			valid_methods = [:get, :head]
+			valid_methods = [:get, :head, :post]
 			@input.each_with_index do |a, i|
 				if(!a[0].is_a? Numeric)
 					raise ArgumentError, "Expected element at index 0 of input #{i+1} to be Numeric; was #{a[0]}"
@@ -52,7 +54,7 @@ module ReReplay
 				end
 				if(!a[2].is_a? String)
 					raise ArgumentError, "Expected element at index 2 of input #{i+1} to be a String; was #{a[2]}"
-				end
+        end
 				if(!a[3].nil? && !a[3].is_a?(Hash))
 					raise ArgumentError, "Expected element at index 3 of input #{i+1} to be nil or a Hash; was #{a[3]}"
         end
@@ -234,11 +236,11 @@ module ReReplay
 		end
 
     def create_http_request(request)
-      url = URI.parse(request.url)
+      uri = URI.parse(request.url)
       if request.http_method == :get
-        return Net::HTTP::Get.new(url.path)
+        return Net::HTTP::Get.new(uri.request_uri)
       elsif request.http_method == :post
-        req = Net::HTTP::Post.new(url.path)
+        req = Net::HTTP::Post.new(uri.request_uri)
         req.set_form_data(request.post_data)
         return req
       else

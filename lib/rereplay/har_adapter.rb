@@ -51,7 +51,7 @@ module ReReplay
     end
 
     def parse(contents)
-      contents['log']['entries'].map do|entry|
+      contents['log']['entries'].map do |entry|
         request = entry['request']
         url = request['url']
         method = request['method']
