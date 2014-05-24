@@ -121,7 +121,7 @@ module ReReplay
 			index = 0
 			requests_to_make = @input.map do |r| 
 				a = r.dup
-				a[3] = index
+				a[4] = index
 				index += 1
 				a
 			end
@@ -159,7 +159,13 @@ module ReReplay
 						if(delay > max_delay) then max_delay = delay; end
 						url = URI.parse(task[2])
 						req = Net::HTTP::Get.new(url.path)
-						request = OpenStruct.new(:url => task[2], :scheduled_start => task[0], :index => task[3], :http_method => task[1])
+						headers = task[3]
+						request = OpenStruct.new(:url => task[2], :scheduled_start => task[0], :index => task[4], :http_method => task[1], :headers => headers)
+						if headers && headers.any?
+							headers.each_pair do |header, value|
+								req[header] = value
+							end
+						end
 						# this connection can actually take ~300ms...is there a better way?
 						Net::HTTP.start(url.host, url.port) do |http|
 							http.read_timeout = p[:timeout]
